@@ -1,4 +1,4 @@
-Under some MASSIVE refactoring, renovation and re-purposing (Re-upload of repository).
+Under some MASSIVE refactoring, renovation and re-purposing (Re-upload of repository). Only public currently for ease of access during development.
 
 Wouldn't recommend running but it works somewhat if you have :
 1) Visual Studio 2022. (Options to choose - Desktop development with C++ with MSVC build tools, C++ CMake tools for Windows, Windows SDK)
