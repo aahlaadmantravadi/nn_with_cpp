@@ -1,5 +1,6 @@
-Under some MASSIVE refactoring, renovation and re-purposing. 
-Wouldn't recommend running but it works if you have :
+Under some MASSIVE refactoring, renovation and re-purposing (Re-upload of repository).
+
+Wouldn't recommend running but it works somewhat if you have :
 1) Visual Studio 2022. (Options to choose - Desktop development with C++ with MSVC build tools, C++ CMake tools for Windows, Windows SDK)
 2) CUDA Toolkit. (Options to choose - Default, install after Visual Studio and make sure Visual Studio Integration options are checked)
 
