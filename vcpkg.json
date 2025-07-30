@@ -1,0 +1,15 @@
+{
+  "name": "deeplearningfromscratch",
+  "version-string": "1.0.0",
+  "dependencies": [
+    "nlohmann-json",
+    "cpp-httplib",
+    "openssl",
+    "miniz",
+    "glfw3",
+    {
+      "name": "imgui",
+      "features": ["glfw-binding", "opengl3-binding"]
+    }
+  ]
+}
