@@ -11,8 +11,9 @@
 #ifndef ZIP_H
 #define ZIP_H
 
-#include <string>
 #include <vector>
+#include <string>
+#include <zlib.h>
 
 namespace Zip {
 

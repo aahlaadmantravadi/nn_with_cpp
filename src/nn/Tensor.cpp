@@ -16,7 +16,7 @@
 #include <iostream>
 
 // Only include CUDA headers if CUDA is available, as determined by CMake
-#ifdef __CUDACC__
+#ifdef USE_CUDA
 #include <cuda_runtime.h>
 #endif
 
@@ -52,7 +52,7 @@ Tensor::Tensor(const Tensor& other) : shape(other.shape), totalSize(other.totalS
         std::copy(other.cpu_data, other.cpu_data + totalSize, cpu_data);
     }
     if (other.gpu_data) {
-        #ifdef __CUDACC__
+        #ifdef USE_CUDA
             allocateGpu();
             cudaMemcpy(gpu_data, other.gpu_data, totalSize * sizeof(float), cudaMemcpyDeviceToDevice);
         #else
@@ -78,7 +78,7 @@ Tensor& Tensor::operator=(const Tensor& other) {
         std::copy(other.cpu_data, other.cpu_data + totalSize, cpu_data);
     }
     if (other.gpu_data) {
-        #ifdef __CUDACC__
+        #ifdef USE_CUDA
             allocateGpu();
             cudaMemcpy(gpu_data, other.gpu_data, totalSize * sizeof(float), cudaMemcpyDeviceToDevice);
         #else
@@ -153,7 +153,7 @@ void Tensor::allocateCpu() {
 }
 
 void Tensor::allocateGpu() {
-    #ifdef __CUDACC__
+    #ifdef USE_CUDA
         if (gpu_data) return; // Already allocated
         if (totalSize == 0) return;
         cudaError_t err = cudaMalloc(&gpu_data, totalSize * sizeof(float));
@@ -166,7 +166,7 @@ void Tensor::allocateGpu() {
 }
 
 void Tensor::toGpu() {
-    #ifdef __CUDACC__
+    #ifdef USE_CUDA
         if (!cpu_data) {
             throw std::runtime_error("Cannot move to GPU: CPU data does not exist.");
         }
@@ -183,7 +183,7 @@ void Tensor::toGpu() {
 }
 
 void Tensor::toCpu() {
-    #ifdef __CUDACC__
+    #ifdef USE_CUDA
         if (!gpu_data) {
             throw std::runtime_error("Cannot move to CPU: GPU data does not exist.");
         }
@@ -207,7 +207,7 @@ void Tensor::freeCpu() {
 }
 
 void Tensor::freeGpu() {
-    #ifdef __CUDACC__
+    #ifdef USE_CUDA
         if (gpu_data) {
             cudaFree(gpu_data);
             gpu_data = nullptr;

@@ -12,7 +12,7 @@ Gemini::Gemini() {}
 
 std::string Gemini::ask(const std::string& prompt, int retry_count) {
     // Check for offline mode first - use this for bypass during development/testing
-    static bool offline_mode = true;
+    static bool offline_mode = false;
     
     if (offline_mode) {
         std::cout << "[Gemini] Using offline mode for parsing." << std::endl;

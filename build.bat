@@ -69,7 +69,7 @@ mkdir "%BUILD_DIR%"
 cd "%BUILD_DIR%"
 
 echo [BUILD] Configuring the project with CMake...
-"%CMAKE_EXE%" .. -G "Visual Studio 17 2022" -A x64 -DCMAKE_TOOLCHAIN_FILE="%VCPKG_ROOT%\scripts\buildsystems\vcpkg.cmake"
+"%CMAKE_EXE%" .. -G "Visual Studio 17 2022" -A x64 -DCMAKE_TOOLCHAIN_FILE="%VCPKG_ROOT%\scripts\buildsystems\vcpkg.cmake" -DENABLE_CUDA=ON
 if %errorlevel% neq 0 (
     echo [ERROR] CMake configuration failed. Check the output above for errors.
     exit /b 1
@@ -83,8 +83,14 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
+rem Explicitly exit with the error code of the last command
+exit /b %errorlevel%
+
 echo [BUILD] Build successful!
 echo [BUILD] You can now find the executable in the 'build\Release' directory.
 echo [BUILD] Run 'DeepLearningFromScratch.exe' to start the application.
 
 endlocal
+
+rem Ensure a clean exit with success code 0
+exit /b 0

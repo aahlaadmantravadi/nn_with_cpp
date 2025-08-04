@@ -33,14 +33,17 @@ set(CMAKE_CUDA_STANDARD 20)
 set(CMAKE_CUDA_STANDARD_REQUIRED ON)
 
 # --- Find Required Packages (managed by vcpkg) ---
-find_package(CUDAToolkit REQUIRED)
-find_package(OpenGL REQUIRED)
-find_package(nlohmann_json REQUIRED)
-find_package(miniz REQUIRED)
+find_package(nlohmann_json CONFIG REQUIRED)
+find_package(OpenSSL CONFIG REQUIRED)
+find_package(glfw3 CONFIG REQUIRED)
+find_package(GLEW CONFIG REQUIRED)
+find_package(imgui CONFIG REQUIRED)
 find_package(httplib REQUIRED)
-find_package(glfw3 REQUIRED)
-find_package(imgui REQUIRED CONFIG)
-find_package(OpenSSL REQUIRED) # FIX: Find OpenSSL
+find_package(miniz CONFIG REQUIRED)
+find_package(ZLIB REQUIRED)
+
+# Find CUDA, which is not managed by vcpkg
+find_package(CUDAToolkit REQUIRED)
 
 # --- Define Source Files ---
 set(APP_SOURCES
@@ -76,19 +79,26 @@ target_include_directories(DeepLearningFromScratch PUBLIC
 
 # --- Link Libraries ---
 target_link_libraries(DeepLearningFromScratch PRIVATE
+    # CUDA
     CUDA::cudart
-    OpenGL::GL
+
+    # Dependencies from vcpkg
     nlohmann_json::nlohmann_json
-    miniz::miniz
-    httplib::httplib
+    OpenSSL::SSL
+    OpenSSL::Crypto
     glfw
+    GLEW::glew
     imgui::imgui
-    OpenSSL::SSL      # FIX: Link SSL
-    OpenSSL::Crypto   # FIX: Link Crypto
+    httplib::httplib
+    miniz::miniz
+    ZLIB::ZLIB
 )
 
 # --- Preprocessor Definitions ---
-target_compile_definitions(DeepLearningFromScratch PRIVATE CPPHTTPLIB_OPENSSL_SUPPORT)
+target_compile_definitions(DeepLearningFromScratch PRIVATE
+    CPPHTTPLIB_OPENSSL_SUPPORT
+    USE_CUDA
+)
 
 # --- Final Touches ---
 set_target_properties(DeepLearningFromScratch PROPERTIES

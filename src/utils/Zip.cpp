@@ -7,78 +7,71 @@
 // =============================================================================
 
 #include "utils/Zip.h"
-// FIX: Include the correct main header for the miniz library.
-#include "miniz.h" 
 #include <fstream>
 #include <iostream>
 #include <vector>
 #include <cstring>  // For memset
+#include <zlib.h>
 
 namespace Zip {
 
 std::vector<unsigned char> decompressGz(const std::string& file_path) {
     std::ifstream file(file_path, std::ios::binary);
     if (!file) {
-        std::cerr << "[Zip] Error: Cannot open file " << file_path << std::endl;
-        return {};
+        throw std::runtime_error("Cannot open file: " + file_path);
     }
 
     file.seekg(0, std::ios::end);
     std::streamsize size = file.tellg();
     file.seekg(0, std::ios::beg);
-    std::vector<char> compressed_data(size);
-    if (!file.read(compressed_data.data(), size)) {
-        std::cerr << "[Zip] Error: Failed to read file " << file_path << std::endl;
-        return {};
-    }
-    file.close();
 
-    std::cout << "[Zip] Decompressing " << file_path << " (" << size << " bytes)..." << std::endl;
-
-    // Use miniz gzip decompression API which handles gzip headers properly
-    mz_stream stream;
-    memset(&stream, 0, sizeof(stream));
-    
-    // Initialize the decompressor
-    int status = mz_inflateInit2(&stream, -MZ_DEFAULT_WINDOW_BITS); // Negative window bits for gzip format
-    if (status != MZ_OK) {
-        std::cerr << "[Zip] Error: Failed to initialize decompressor. miniz error: " << mz_error(status) << std::endl;
-        return {};
+    std::vector<unsigned char> compressed_data(size);
+    if (!file.read(reinterpret_cast<char*>(compressed_data.data()), size)) {
+        throw std::runtime_error("Failed to read file: " + file_path);
     }
-    
-    // Set up the input
-    stream.next_in = (const unsigned char*)compressed_data.data();
-    stream.avail_in = (unsigned int)compressed_data.size();
-    
-    // Prepare for output - start with a reasonable buffer size
+
+    std::cout << "[Zip] Decompressing " << file_path << " (" << size << " bytes) using zlib..." << std::endl;
+
     const size_t CHUNK = 16384;
     std::vector<unsigned char> decompressed_data;
-    std::vector<unsigned char> outbuf(CHUNK);
-    
-    // Decompress the data
+    z_stream strm = {};
+    strm.zalloc = Z_NULL;
+    strm.zfree = Z_NULL;
+    strm.opaque = Z_NULL;
+    strm.avail_in = 0;
+    strm.next_in = Z_NULL;
+
+    if (inflateInit2(&strm, 16 + MAX_WBITS) != Z_OK) {
+        throw std::runtime_error("inflateInit2 failed");
+    }
+
+    strm.avail_in = compressed_data.size();
+    strm.next_in = compressed_data.data();
+
+    int ret;
+    unsigned char out[CHUNK];
     do {
-        stream.next_out = outbuf.data();
-        stream.avail_out = CHUNK;
-        
-        status = mz_inflate(&stream, MZ_SYNC_FLUSH);
-        
-        if (status != MZ_OK && status != MZ_STREAM_END) {
-            mz_inflateEnd(&stream);
-            std::cerr << "[Zip] Error: Decompression failed. miniz error: " << mz_error(status) << std::endl;
-            return {};
+        strm.avail_out = CHUNK;
+        strm.next_out = out;
+        ret = inflate(&strm, Z_NO_FLUSH);
+        switch (ret) {
+            case Z_NEED_DICT:
+            case Z_DATA_ERROR:
+            case Z_MEM_ERROR:
+                inflateEnd(&strm);
+                throw std::runtime_error("zlib inflation error: " + std::to_string(ret));
         }
-        
-        // Copy the decompressed data to our output vector
-        size_t bytes_decompressed = CHUNK - stream.avail_out;
-        decompressed_data.insert(decompressed_data.end(), outbuf.begin(), outbuf.begin() + bytes_decompressed);
-        
-    } while (status != MZ_STREAM_END);
-    
-    // Clean up
-    mz_inflateEnd(&stream);
-    
+        size_t have = CHUNK - strm.avail_out;
+        decompressed_data.insert(decompressed_data.end(), out, out + have);
+    } while (strm.avail_out == 0);
+
+    inflateEnd(&strm);
+
+    if (ret != Z_STREAM_END) {
+        throw std::runtime_error("Gzip decompression failed: stream did not end properly.");
+    }
+
     std::cout << "[Zip] Decompression successful. Unpacked size: " << decompressed_data.size() << " bytes." << std::endl;
-    
     return decompressed_data;
 }
 

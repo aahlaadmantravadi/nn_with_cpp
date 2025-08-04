@@ -3,13 +3,18 @@
   "version-string": "1.0.0",
   "dependencies": [
     "nlohmann-json",
-    "cpp-httplib",
     "openssl",
-    "miniz",
     "glfw3",
+    "glew",
     {
       "name": "imgui",
-      "features": ["glfw-binding", "opengl3-binding"]
-    }
+      "features": [
+        "glfw-binding",
+        "opengl3-binding"
+      ]
+    },
+    "cpp-httplib",
+    "miniz",
+    "zlib"
   ]
 }

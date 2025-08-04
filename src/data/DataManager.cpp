@@ -144,8 +144,7 @@ void DataManager::loadMnist() {
         try {
             loadMnistDirect();
         } catch (const std::exception& e) {
-            std::cout << "[Data] Direct download failed: " << e.what() << ". Using built-in mini-MNIST dataset..." << std::endl;
-            loadMnistFallback();
+            throw std::runtime_error("[Data] Direct download and load failed: " + std::string(e.what()));
         }
     }
 }
@@ -302,73 +301,33 @@ void DataManager::loadMnistFallback() {
 }
 
 void DataManager::loadMnistDirect() {
-    std::cout << "[Data] Attempting direct download of raw MNIST files (without compression)..." << std::endl;
-    
-    // Original URLs (gzipped)
-    std::vector<std::string> gz_urls = {
-        "http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz",
-        "http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz",
-        "http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz",
-        "http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz"
-    };
-    
-    // Alternate URLs (also gzipped but from a reliable mirror)
-    std::vector<std::string> alt_gz_urls = {
-        "https://storage.googleapis.com/cvdf-datasets/mnist/train-images-idx3-ubyte.gz",
-        "https://storage.googleapis.com/cvdf-datasets/mnist/train-labels-idx1-ubyte.gz",
-        "https://storage.googleapis.com/cvdf-datasets/mnist/t10k-images-idx3-ubyte.gz", 
-        "https://storage.googleapis.com/cvdf-datasets/mnist/t10k-labels-idx1-ubyte.gz"
-    };
+    std::cout << "[Data] Attempting direct download and decompression of MNIST files..." << std::endl;
+
+    // The primary and fallback URLs are now handled inside Http::downloadAndDecompress
+    const std::string train_images_url = "http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz";
+    const std::string train_labels_url = "http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz";
+    const std::string test_images_url = "http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz";
+    const std::string test_labels_url = "http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz";
 
     try {
-        std::vector<unsigned char> train_images_data;
-        std::vector<unsigned char> train_labels_data;
-        std::vector<unsigned char> test_images_data;
-        std::vector<unsigned char> test_labels_data;
-        
-        // Create a small function to handle downloading and decompressing from multiple URLs
-        auto downloadAndDecompressWithFallback = [](const std::vector<std::string>& urls) {
-            std::vector<unsigned char> data;
-            std::string lastError;
-            
-            for (const auto& url : urls) {
-                try {
-                    std::cout << "[HTTP] Trying to download from: " << url << std::endl;
-                    return Http::downloadAndDecompress(url);
-                } catch (const std::exception& e) {
-                    lastError = e.what();
-                    std::cout << "[HTTP] Download/decompress failed: " << lastError << std::endl;
-                    // Continue to next URL
-                }
-            }
-            
-            throw std::runtime_error("All download attempts failed. Last error: " + lastError);
-        };
-        
-        // Try downloading and decompressing from each URL
-        std::vector<std::string> trainImagesUrls = {gz_urls[0], alt_gz_urls[0]};
-        std::vector<std::string> trainLabelsUrls = {gz_urls[1], alt_gz_urls[1]};
-        std::vector<std::string> testImagesUrls = {gz_urls[2], alt_gz_urls[2]};
-        std::vector<std::string> testLabelsUrls = {gz_urls[3], alt_gz_urls[3]};
-        
         std::cout << "[Data] Downloading and decompressing train images..." << std::endl;
-        train_images_data = downloadAndDecompressWithFallback(trainImagesUrls);
-        
+        auto train_images_data = Http::downloadAndDecompress(train_images_url);
+
         std::cout << "[Data] Downloading and decompressing train labels..." << std::endl;
-        train_labels_data = downloadAndDecompressWithFallback(trainLabelsUrls);
-        
+        auto train_labels_data = Http::downloadAndDecompress(train_labels_url);
+
         std::cout << "[Data] Downloading and decompressing test images..." << std::endl;
-        test_images_data = downloadAndDecompressWithFallback(testImagesUrls);
-        
+        auto test_images_data = Http::downloadAndDecompress(test_images_url);
+
         std::cout << "[Data] Downloading and decompressing test labels..." << std::endl;
-        test_labels_data = downloadAndDecompressWithFallback(testLabelsUrls);
-        
+        auto test_labels_data = Http::downloadAndDecompress(test_labels_url);
+
         // Parse the downloaded data
         X_train = parseMnistImages(train_images_data);
         y_train = parseMnistLabels(train_labels_data);
         X_test = parseMnistImages(test_images_data);
         y_test = parseMnistLabels(test_labels_data);
-        
+
         std::cout << "[Data] MNIST directly downloaded and loaded. Training samples: " 
                   << X_train.getRows() << ", Test samples: " << X_test.getRows() << std::endl;
     } catch (const std::exception& e) {

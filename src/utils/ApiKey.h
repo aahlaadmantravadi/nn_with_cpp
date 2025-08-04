@@ -3,5 +3,5 @@
 #include <string>
 
 namespace ApiKey {
-    const std::string Gemini = "INSERT_API_KEY";
+    const std::string Gemini = "INSERT_KEY";
 }

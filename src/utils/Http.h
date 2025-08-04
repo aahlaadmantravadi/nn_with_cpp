@@ -2,6 +2,8 @@
 
 #include <string>
 #include <vector>
+#include <memory>
+#include <zlib.h>
 
 namespace Http {
     void downloadFile(const std::string& host, const std::string& path, const std::string& out_path);
