@@ -8,23 +8,25 @@
 //
 // =============================================================================
 
-#ifndef GPU_OPS_CUH
-#define GPU_OPS_CUH
+#pragma once
+
+
 
 class Tensor; // Forward declaration
 
-class GpuOps {
+
+
+class GpuOps
+{
 public:
     // Wrapper function to launch the matrix multiplication kernel: C = A * B
-    static void matmul(const Tensor& A, const Tensor& B, Tensor& C);
-    
+    static void matmul(const Tensor &A, const Tensor &B, Tensor &C);
+
     // Wrapper function to launch the element-wise addition kernel: C = A + B
-    static void add(const Tensor& A, const Tensor& B, Tensor& C);
+    static void add(const Tensor &A, const Tensor &B, Tensor &C);
 
     // Wrapper function to launch the ReLU activation kernel: A = max(0, A)
-    static void relu(Tensor& A);
+    static void relu(Tensor &A);
 
     // ... other CUDA operation wrappers will go here
 };
-
-#endif // GPU_OPS_CUH

@@ -9,30 +9,36 @@
 // =============================================================================
 
 #include "gui/GuiManager.h"
+
+
+
 #include <iostream>
 #include <stdexcept>
 
-int main() {
-    try {
-        // GuiManager encapsulates the entire application logic.
-        // Creating an instance and running it is all that's needed.
+
+
+
+int main()
+{
+    try
+    {
         GuiManager app;
         app.run();
-    } catch (const std::exception& e) {
-        // Catch any standard exceptions that might occur during initialization
-        // or runtime and report them.
-        std::cerr << "An unhandled exception occurred: " << e.what() << std::endl;
-        // Pause to allow user to see the error message in the console.
-        #ifdef _WIN32
-            system("pause");
-        #endif
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << "An unhandled exception occurred: " << e.what() << '\n';
+#ifdef _WIN32
+        system("pause");
+#endif
         return EXIT_FAILURE;
-    } catch (...) {
-        // Catch any other unknown exceptions.
-        std::cerr << "An unknown fatal error occurred." << std::endl;
-        #ifdef _WIN32
-            system("pause");
-        #endif
+    }
+    catch (...)
+    {
+        std::cerr << "An unknown fatal error occurred." << '\n';
+#ifdef _WIN32
+        system("pause");
+#endif
         return EXIT_FAILURE;
     }
 

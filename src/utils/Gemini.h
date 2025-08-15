@@ -1,9 +1,14 @@
 #pragma once
 
+
+
 #include <string>
 
-class Gemini {
+
+
+class Gemini
+{
 public:
     Gemini();
-    std::string ask(const std::string& prompt, int retry_count = 3);
+    [[nodiscard]] std::string ask(const std::string &prompt, int retry_count = 3);
 };

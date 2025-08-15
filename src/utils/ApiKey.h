@@ -2,6 +2,7 @@
 
 #include <string>
 
-namespace ApiKey {
-    const std::string Gemini = "INSERT_KEY";
+namespace ApiKey
+{
+    constexpr std::string_view kGemini = "GEMINI_API_KEY";
 }

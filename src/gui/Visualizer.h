@@ -1,9 +1,14 @@
 #pragma once
 
+
+
 #include "nn/Model.h"
 
-class Visualizer {
+
+
+class Visualizer
+{
 public:
     Visualizer();
-    void render(Model* model);
+    void render(Model *model);
 };

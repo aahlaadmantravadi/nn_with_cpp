@@ -1,17 +1,33 @@
 #pragma once
 
-enum class ActivationType {
+
+
+// --- Standard Includes ---
+#include <cstdint>
+
+
+
+enum class ActivationType : std::uint8_t
+{
     ReLU,
-    Sigmoid
+    Sigmoid,
 };
 
-enum class Dataset {
+
+
+enum class Dataset : std::uint8_t
+{
     None,
     MNIST,
-    Custom
+    CIFAR10,
+    CIFAR10_CATS_DOGS,
+    Custom,
 };
 
-enum class Backend {
+
+
+enum class Backend : std::uint8_t
+{
     CPU,
-    GPU
+    GPU,
 };
